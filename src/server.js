@@ -1,5 +1,9 @@
+require("express-async-errors");
 const express = require("express");
-const AppError = require("./utils/AppError");
+const errorHandler = require("./utils/errorHandler");
+const uploadConfig = require("./configs/upload");
+const routes = require("./routes");
+
 const cors = require("cors");
 const app = express();
 
@@ -7,22 +11,11 @@ app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 3333;
+app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER));
 
-app.use((error, request, response, next) => {
-  if (error instanceof AppError) {
-    return response.status(error.statusCode).json({
-      status: "error",
-      message: error.message,
-    });
-  }
+app.use(routes);
 
-  console.error(error);
-
-  return response.status(500).json({
-    status: "error",
-    message: "Internal Server Error",
-  });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);

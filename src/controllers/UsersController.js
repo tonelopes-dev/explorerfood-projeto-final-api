@@ -13,7 +13,7 @@ class UsersController {
 
     const hashedPassword = await hash(password, 8);
 
-    await knex("users").insert({ name, email, hashedPassword });
+    await knex("users").insert({ username: name, email, password: hashedPassword });
 
     return response.status(201).json({});
   }
@@ -54,6 +54,7 @@ class UsersController {
       username: user.name,
       email: user.email,
       password: user.password,
+      updated_at: knex.fn.now(),
     });
     if (!userUpdated) {
       throw new AppError("Não foi possível atualizar o usuario");

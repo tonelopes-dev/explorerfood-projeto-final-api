@@ -3,10 +3,10 @@ exports.up = (knex) =>
     table.increments("id").primary();
     table.string("username").notNullable();
     table.string("email").notNullable().unique();
-    table.string("password").notNullable().unique();
+    table.string("password").notNullable();
     table.string("avatar").unique();
-    table.timestamp("created_at").default(knex.fn.now());
-    table.timestamp("updated_at").default(knex.fn.now());
+    table.timestamp("created_at").defaultTo(knex.fn.now());
+    table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
 
 exports.down = (knex) => {
