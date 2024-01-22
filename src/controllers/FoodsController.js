@@ -37,36 +37,37 @@ class FoodsController {
     return response.json();
   }
   async index(request, response) {
-    // Extrai parâmetros da consulta da requisição
     const { foodName, ingredients } = request.query;
-    const user_id = request.user.id;
-    // Inicializa uma variável para armazenar as foods
+
     let foods;
 
-    // Verifica se há ingredients na consulta
     if (ingredients) {
-      // Se houver ingredients, filtra as foods por esses ingredients usando o Knex
-
       const filterIngredients = ingredients.split(",").map((ingredient) => ingredient.trim());
 
       foods = await knex("food_ingredients")
-        .select(["foods.id", "foods.title", "foods.user_id"])
-        .where("foods.user_id", user_id)
-        .whereLike("foods.title", `%${foodName}%`)
+        .select(["foods.id", "foods.title"])
+        .modify(function (queryBuilder) {
+          if (foodName) {
+            queryBuilder.whereLike("foods.title", `%${foodName}%`);
+          }
+        })
         .whereIn("name", filterIngredients)
         .innerJoin("foods", "foods.id", "food_ingredients.food_id")
-        .groupBy(["foods.id", "foods.title", "foods.user_id"])
+        .groupBy(["foods.id", "foods.title"])
         .orderBy("foods.title");
     } else {
-      // Se não houver ingredients, filtra os foods por título e user_id usando o Knex
-
-      foods = await knex("foods").where({ user_id }).whereLike("title", `%${foodName}%`).orderBy("title");
+      foods = await knex("foods")
+        .modify(function (queryBuilder) {
+          if (foodName) {
+            queryBuilder.whereLike("title", `%${foodName}%`);
+          }
+        })
+        .orderBy("title");
     }
-    console.log(foods);
-    console.log(ingredients);
-    const userIngredients = await knex("food_ingredients");
+
+    const allIngredients = await knex("food_ingredients");
     const foodsWithIngredients = foods.map((food) => {
-      const foodIngredients = userIngredients.filter((ingredient) => ingredient.food_id === food.id);
+      const foodIngredients = allIngredients.filter((ingredient) => ingredient.food_id === food.id);
 
       return {
         ...food,
@@ -74,10 +75,9 @@ class FoodsController {
       };
     });
 
-    // Retorna as foods e suas ingredients em formato JSON como resposta à requisição
-
     return response.json(foodsWithIngredients);
   }
+
   async update(request, response) {
     const { title, description, category, ingredients } = request.body;
     const food_id = request.params.id;

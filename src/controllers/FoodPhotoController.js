@@ -5,7 +5,7 @@ const DiskStorage = require("../providers/DiskStorage");
 class FoodPhotoController {
   async update(req, res) {
     const food_id = req.params.id;
-    const avatarFilename = req.file.filename;
+    const imageFilename = req.file.filename;
 
     const diskStorage = new DiskStorage();
 
@@ -15,15 +15,15 @@ class FoodPhotoController {
       throw new AppError("Apenas usuarios autenticados podem atualizar a foto dos dos itens.", 401);
     }
 
-    if (food.avatar) {
-      await diskStorage.deleteFile(food.avatar);
+    if (food.url_image) {
+      await diskStorage.deleteFile(food.url_image);
     }
 
-    const filename = await diskStorage.saveFile(avatarFilename);
-    food.avatar = filename;
+    const filename = await diskStorage.saveFile(imageFilename);
+    food.url_image = filename;
 
     await knex("foods").where({ id: food_id }).update({
-      avatar: food.avatar,
+      url_image: food.url_image,
       updated_at: knex.fn.now(),
     });
 
