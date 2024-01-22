@@ -12,9 +12,10 @@ function ensureAuthenticated(req, res, next) {
   const [_, token] = authHeader.split(" ");
 
   try {
-    const { sub: user_id } = verify(token, authConfig.jwt.secret);
+    const { role, sub: user_id } = verify(token, authConfig.jwt.secret);
     req.user = {
       id: Number(user_id),
+      role,
     };
     return next();
   } catch {
