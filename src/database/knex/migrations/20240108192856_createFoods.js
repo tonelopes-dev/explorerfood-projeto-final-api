@@ -4,14 +4,16 @@ exports.up = (knex) =>
     table.string("url_image").unique();
     table.string("title").notNullable();
     table.string("description").notNullable();
-    table.num("price").notNullable();
-    table.string("category").notNullable();
+    table.decimal("price", 10, 2).notNullable();
+
+    table.enum("category", ["meal", "dessert", "drink"], { useNative: true, enumName: "categories" }).notNullable();
+
     table.integer("user_id").references("id").inTable("users");
 
-    table.timestamp("created_at").default(knex.fn.now());
-    table.timestamp("updated_at").default(knex.fn.now());
+    table.timestamp("created_at").defaultTo(knex.fn.now());
+    table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
 
 exports.down = (knex) => {
-  knex.schema.dropTableIfExists("foods");
+  return knex.schema.dropTableIfExists("foods");
 };

@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError");
 
 class FoodsController {
   async create(request, response) {
-    const { title, description, category, ingredients } = request.body;
+    const { title, description, category, ingredients, price } = request.body;
     const user_id = request.user.id;
 
     const [food_id] = await knex("foods").insert({
@@ -11,6 +11,7 @@ class FoodsController {
       description,
       user_id,
       category,
+      price,
     });
     const ingredientsInsert = ingredients.map((ingredient) => {
       return {
@@ -37,7 +38,7 @@ class FoodsController {
     return response.json();
   }
   async index(request, response) {
-    const { foodName, ingredients } = request.query;
+    const { foodName, ingredients, categoryFood } = request.query;
 
     let foods;
 
@@ -52,9 +53,12 @@ class FoodsController {
           }
         })
         .whereIn("name", filterIngredients)
+        .whereLike("food_ingredients.name", `%${filterIngredients}%`)
         .innerJoin("foods", "foods.id", "food_ingredients.food_id")
         .groupBy(["foods.id", "foods.title"])
         .orderBy("foods.title");
+    } else if (categoryFood) {
+      foods = await knex("foods").where({ category: categoryFood });
     } else {
       foods = await knex("foods")
         .modify(function (queryBuilder) {
@@ -79,7 +83,7 @@ class FoodsController {
   }
 
   async update(request, response) {
-    const { title, description, category, ingredients } = request.body;
+    const { title, description, category, ingredients, price } = request.body;
     const food_id = request.params.id;
 
     const food = await knex("foods").where({ id: food_id }).first();
@@ -102,12 +106,14 @@ class FoodsController {
     food.title = title ?? food.title;
     food.description = description ?? food.description;
     food.category = category ?? food.category;
+    food.price = price ?? food.price;
 
     const foodUpdated = await knex("foods").where({ id: food.id }).update({
       title: food.title,
       category: food.category,
       description: food.description,
       ingredients: food.ingredients,
+      price: food.price,
       updated_at: knex.fn.now(),
     });
     if (!foodUpdated) {
