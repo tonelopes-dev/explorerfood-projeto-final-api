@@ -17,11 +17,12 @@ class FoodsController {
       return {
         name: ingredient,
         food_id,
+        user_id,
       };
     });
     await knex("food_ingredients").insert(ingredientsInsert);
 
-    return response.json();
+    return response.json({ food_id });
   }
   async show(request, response) {
     const food_id = request.params.id;
