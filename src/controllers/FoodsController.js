@@ -1,6 +1,47 @@
 const knex = require("../database/knex");
 const AppError = require("../utils/AppError");
 
+async function searchFoods(foodName, ingredients, categoryFood) {
+  const filterIngredients = ingredients ? ingredients.split(",").map((ingredient) => ingredient.trim()) : null;
+
+  let query = knex("foods")
+    .select(
+      "foods.id",
+      "foods.title",
+      "foods.category",
+      "foods.url_image",
+      "foods.price",
+      "foods.description",
+      "foods.created_at",
+      "foods.updated_at"
+    )
+    .leftJoin("food_ingredients", "foods.id", "=", "food_ingredients.food_id");
+
+  if (foodName) {
+    query = query.where("foods.title", "like", `%${foodName}%`);
+  }
+
+  if (filterIngredients && filterIngredients.length > 0) {
+    query = query.orWhere((builder) => {
+      builder.whereIn("food_ingredients.name", filterIngredients);
+    });
+  }
+
+  if (categoryFood) {
+    query = query.where("foods.category", categoryFood);
+  }
+
+  const foods = await query.distinct("foods.id").orderBy("foods.title");
+
+  // Agora, para cada comida, buscar os ingredientes
+  for (let food of foods) {
+    const ingredients = await knex("food_ingredients").where("food_id", food.id).select("name");
+    food.ingredients = ingredients.map((ing) => ing.name);
+  }
+
+  return foods;
+}
+
 class FoodsController {
   async create(request, response) {
     const { title, description, category, ingredients, price } = request.body;
@@ -41,46 +82,13 @@ class FoodsController {
   async index(request, response) {
     const { foodName, ingredients, categoryFood } = request.query;
 
-    let foods;
-
-    if (ingredients) {
-      const filterIngredients = ingredients.split(",").map((ingredient) => ingredient.trim());
-
-      foods = await knex("food_ingredients")
-        .select(["foods.id", "foods.title"])
-        .modify(function (queryBuilder) {
-          if (foodName) {
-            queryBuilder.whereLike("foods.title", `%${foodName}%`);
-          }
-        })
-        .whereIn("name", filterIngredients)
-        .whereLike("food_ingredients.name", `%${filterIngredients}%`)
-        .innerJoin("foods", "foods.id", "food_ingredients.food_id")
-        .groupBy(["foods.id", "foods.title"])
-        .orderBy("foods.title");
-    } else if (categoryFood) {
-      foods = await knex("foods").where({ category: categoryFood });
-    } else {
-      foods = await knex("foods")
-        .modify(function (queryBuilder) {
-          if (foodName) {
-            queryBuilder.whereLike("title", `%${foodName}%`);
-          }
-        })
-        .orderBy("title");
+    try {
+      const foodsWithIngredients = await searchFoods(foodName, ingredients, categoryFood);
+      return response.json(foodsWithIngredients);
+    } catch (error) {
+      console.error("Erro ao buscar alimentos: ", error);
+      return response.status(500).json({ error: "Erro interno do servidor" });
     }
-
-    const allIngredients = await knex("food_ingredients");
-    const foodsWithIngredients = foods.map((food) => {
-      const foodIngredients = allIngredients.filter((ingredient) => ingredient.food_id === food.id);
-
-      return {
-        ...food,
-        ingredients: foodIngredients,
-      };
-    });
-
-    return response.json(foodsWithIngredients);
   }
 
   async update(request, response) {

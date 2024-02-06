@@ -20,7 +20,7 @@ class FoodPhotoController {
     }
 
     const filename = await diskStorage.saveFile(imageFilename);
-    food.url_image = filename;
+    food.url_image = filename ?? food.url_image;
 
     await knex("foods").where({ id: food_id }).update({
       url_image: food.url_image,
