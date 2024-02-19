@@ -7,7 +7,7 @@ class UsersValidatedController {
 
     const checkUserExists = await knex("users").where({ id: user.id });
 
-    if (checkUserExists.length === 0) {
+    if (checkUserExists.length === 0 || !checkUserExists) {
       throw new AppError("Unauthorized", 401);
     }
 

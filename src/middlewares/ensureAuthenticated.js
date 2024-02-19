@@ -3,13 +3,13 @@ const AppError = require("../utils/AppError");
 const authConfig = require("../configs/auth");
 
 function ensureAuthenticated(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.cookie;
 
   if (!authHeader) {
     throw new AppError("JWT Token não informado", 401);
   }
 
-  const [_, token] = authHeader.split(" ");
+  const [_, token] = authHeader.split("token=");
 
   try {
     const { role, sub: user_id } = verify(token, authConfig.jwt.secret);
