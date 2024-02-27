@@ -303,4 +303,4 @@ exemplo: http://localhost:5173/foods/15
 
 ## 🚀 Sobre mim
 
-Eu sou uma pessoa desenvolvedora full-stack...
+Eu sou uma pessoa desenvolvedora full-stack.. [Tone Lopes](https://portfolio-v2-tonelopes.vercel.app/)
