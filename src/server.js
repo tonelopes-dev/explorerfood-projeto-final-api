@@ -6,7 +6,12 @@ const routes = require("./routes");
 const cookieParser = require("cookie-parser");
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://explorerfood-projeto-final-web.vercel.app"],
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://explorerfood-projeto-final-web.vercel.app",
+    "https://explorerfood-projeto-final-api.onrender.com/",
+  ],
   credentials: true, // Permitir cookies e autenticação de sessão
   // Adicione outras opções conforme necessário
 };
