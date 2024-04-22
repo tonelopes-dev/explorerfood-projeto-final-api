@@ -11,17 +11,26 @@ function ensureAuthenticated(req, res, next) {
   }
 
   // Extrai o token do cookie
-  const token = authHeader.cookie.split("token=")[1].split(";")[0]; // Ajuste para extrair corretamente o token
+  let token;
+  try {
+    token = authHeader.cookie.split("token=")[1].split(";")[0];
+  } catch (error) {
+    throw new AppError("Erro na extração do token do cookie", 400);
+  }
+
+  if (!token) {
+    throw new AppError("JWT Token não informado", 401);
+  }
 
   try {
     // Verifica o token
-    const { role, sub: user_id } = verify(token, authConfig.jwt.secret);
+    const decodedToken = verify(token, authConfig.jwt.secret);
     req.user = {
-      id: Number(user_id),
-      role,
+      id: Number(decodedToken.sub),
+      role: decodedToken.role,
     };
-    return next();
-  } catch {
+    next();
+  } catch (error) {
     throw new AppError("JWT Token inválido", 401);
   }
 }
