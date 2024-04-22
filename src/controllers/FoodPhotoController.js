@@ -12,7 +12,7 @@ class FoodPhotoController {
     const food = await knex("foods").where({ id: food_id }).first();
 
     if (!food) {
-      throw new AppError("Apenas usuarios autenticados podem atualizar a foto dos dos itens.", 401);
+      throw new AppError("Produto não encontrado", 404);
     }
 
     if (food.url_image) {
