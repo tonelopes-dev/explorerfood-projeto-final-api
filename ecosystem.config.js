@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "api",
       script: "./src/server.js",
-      instances: "max",
+      instances: 1,
       exec_mode: "cluster",
       watch: false,
       increment_var: "PORT",
