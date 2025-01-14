@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
-const PORT = process.env.PORT || 3333;
+const PORT = process.env.PORT || 3334;
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER));
 
 app.use(routes);
