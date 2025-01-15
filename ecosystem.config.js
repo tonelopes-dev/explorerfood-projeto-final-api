@@ -11,11 +11,11 @@ module.exports = {
       max_memory_restart: "500M",
       env: {
         NODE_ENV: "development",
-        PORT: 3334,
+        PORT: 8080,
       },
       env_production: {
         NODE_ENV: "production",
-        PORT: 3004,
+        PORT: 8000,
       },
       log_date_format: "YYYY-MM-DD HH:mm:ss",
       log_file: "logs/app.log",
