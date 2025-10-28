@@ -4,7 +4,7 @@ Bem-vindo ao projeto [Food Explorer]! Este é um sistema FullStack de um restaur
 
 ## Screenshots
 
-![App Screenshot](./github/print-screens.jpg)
+![App Screenshot](https://tone-monte-portfolio-v3.s3.us-east-1.amazonaws.com/projects/1758298651603-2ao9bu-banner-food-explorer.jpg)
 
 Abaixo, você encontrará instruções sobre como configurar e executar o projeto em sua máquina local.
 
